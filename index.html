@@ -85,9 +85,11 @@ function throttledSend(char, val) {
 async function send(char, val) {
     if (!char) return;
     try {
-        await char.writeValue(Uint8Array.of(parseInt(val)));
+        // Vi använder writeValueWithoutResponse för snabbare respons och mindre krockar
+        await char.writeValueWithoutResponse(Uint8Array.of(parseInt(val)));
     } catch (e) {
-        console.log("Sändningsfel:", e);
+        // Om WithoutResponse inte stöds, kör vi den vanliga
+        await char.writeValue(Uint8Array.of(parseInt(val))).catch(err => console.log(err));
     }
 }
 </script>
