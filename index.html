@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">   
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COB LED Controller</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; }
+        input[type=range] { width: 200px; margin: 10px; }
+        .status { margin-top: 10px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>COB LED Controller</h2>
+    <button onclick="connect()" id="btn">Anslut till LED</button>
+    <p id="status" class="status">Ej ansluten</p>
+
+    <hr>
+    R <input type="range" min="0" max="255" value="0" oninput="throttledSend(rChar, this.value)"><br>
+    G <input type="range" min="0" max="255" value="0" oninput="throttledSend(gChar, this.value)"><br>
+    B <input type="range" min="0" max="255" value="0" oninput="throttledSend(bChar, this.value)"><br>
+    Ljusstyrka <input type="range" min="0" max="255" value="128" oninput="throttledSend(brChar, this.value)"><br>
+
+    Läge:
+    <select onchange="send(modeChar, this.value)">
+        <option value="0">Solid</option>
+        <option value="1">Fade</option>
+        <option value="2">Rainbow</option>
+    </select>
+</div>
+
+<script>
+let rChar, gChar, bChar, brChar, modeChar;
+let lastSend = 0;
+
+const UUIDS = {
+    service: '12345678-1234-1234-1234-1234567890ab',
+    r: '12345678-1234-1234-1234-1234567890ac',
+    g: '12345678-1234-1234-1234-1234567890ad',
+    b: '12345678-1234-1234-1234-1234567890ae',
+    br: '12345678-1234-1234-1234-1234567890af',
+    mode: '12345678-1234-1234-1234-1234567890b0'
+};
+
+async function connect() {
+    try {
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ name: 'COB_LED' }],
+            optionalServices: [UUIDS.service]
+        });
+
+        document.getElementById('status').innerText = "Ansluter...";
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(UUIDS.service);
+
+        rChar = await service.getCharacteristic(UUIDS.r);
+        gChar = await service.getCharacteristic(UUIDS.g);
+        bChar = await service.getCharacteristic(UUIDS.b);
+        brChar = await service.getCharacteristic(UUIDS.br);
+        modeChar = await service.getCharacteristic(UUIDS.mode);
+
+        document.getElementById('status').innerText = "Ansluten!";
+        document.getElementById('btn').style.background = "#90ee90";
+    } catch (error) {
+        console.error(error);
+        alert("Fel: " + error.message);
+    }
+}
+
+function throttledSend(char, val) {
+    const now = Date.now();
+    if (now - lastSend > 50) { // Max ett skick per 50ms
+        send(char, val);
+        lastSend = now;
+    }
+}
+
+async function send(char, val) {
+    if (!char) return;
+    try {
+        await char.writeValue(Uint8Array.of(parseInt(val)));
+    } catch (e) {
+        console.log("Sändningsfel:", e);
+    }
+}
+</script>
+</body>
+</html>
