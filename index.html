@@ -49,10 +49,12 @@ const UUIDS = {
 
 async function connect() {
     try {
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [{ name: 'COB_LED' }],
-            optionalServices: [UUIDS.service]
-        });
+        device = await navigator.bluetooth.requestDevice({
+    // Istället för exakt namn, leta efter enheter som har din service
+    filters: [
+        { services: [UUIDS.service] } 
+    ]
+});
 
         document.getElementById('status').innerText = "Ansluter...";
         const server = await device.gatt.connect();
