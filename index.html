@@ -25,6 +25,7 @@
     G <input type="range" min="0" max="255" value="0" oninput="throttledSend(gChar, this.value)"><br>
     B <input type="range" min="0" max="255" value="0" oninput="throttledSend(bChar, this.value)"><br>
     Ljusstyrka <input type="range" min="0" max="255" value="128" oninput="throttledSend(brChar, this.value)"><br>
+	Hastighet <input type="range" min="1" max="100" value="50" oninput="throttledSend(speedChar, this.value)"><br>
 
     Läge:
     <select onchange="send(modeChar, this.value)">
@@ -46,6 +47,9 @@ const UUIDS = {
     b: '12345678-1234-1234-1234-1234567890ae',
     br: '12345678-1234-1234-1234-1234567890af',
     mode: '12345678-1234-1234-1234-1234567890b0'
+	// Nytt UUID för hastighet
+const speedUUID = '12345678-1234-1234-1234-1234567890b1';
+let speedChar;
 };
 
 async function connect() {
@@ -66,6 +70,7 @@ async function connect() {
         bChar = await service.getCharacteristic(UUIDS.b);
         brChar = await service.getCharacteristic(UUIDS.br);
         modeChar = await service.getCharacteristic(UUIDS.mode);
+		speedChar = await service.getCharacteristic(speedUUID);
 
         document.getElementById('status').innerText = "Ansluten!";
         document.getElementById('btn').style.background = "#90ee90";
