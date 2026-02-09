@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COB LED Controller</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #FFEC00; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; }
         input[type=range] { width: 200px; margin: 10px; }
         .status { margin-top: 10px; color: #666; }
@@ -73,7 +73,7 @@ async function connect() {
 		speedChar = await service.getCharacteristic(speedUUID);
 
         document.getElementById('status').innerText = "Ansluten!";
-        document.getElementById('btn').style.background = "#90ee90";
+        document.getElementById('btn').style.background = "#14F4E4";
     } catch (error) {
         console.error(error);
         alert("Fel: " + error.message);
